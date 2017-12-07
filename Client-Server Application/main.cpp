@@ -5,11 +5,11 @@
 //  Created by merateam on 05/12/2017.
 //  Copyright © 2017 merateam. All rights reserved.
 //
-
-#include <iostream>
+//#include "Interface.hpp"
+#include "Server.hpp"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    Server server;
+    server.run();
     return 0;
 }
