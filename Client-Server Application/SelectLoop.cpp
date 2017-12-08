@@ -13,7 +13,7 @@ void SelectLoop::addClientSocket(int sock){
 }
 
 void SelectLoop::removeClientSocket(int sock){
-    //_badClietsSD
+    _clientsSD.remove(sock);
 }
 
 void SelectLoop::setListener(Server* listener){
@@ -33,7 +33,6 @@ void SelectLoop::run(){
     
     char buf[1024];
     int bytes_read;
-    std::list<int> badClientSD;
     
     while(1){
         //filling a lot of sockets
@@ -42,14 +41,6 @@ void SelectLoop::run(){
         FD_SET(_listener, &readset);
         for (std::list<int>::iterator it = _clientsSD.begin(); it != _clientsSD.end(); ++it)
         {
-            for (std::list<int>::iterator iter = badClientSD.begin(); iter != badClientSD.end(); ++iter)
-            {
-                if(*it == *iter)
-                {
-                    it = _clientsSD.erase(it);
-                    iter = badClientSD.erase(iter);
-                }
-            }
             FD_SET(*it, &readset);
         }
         timeval timeout;
@@ -84,7 +75,7 @@ void SelectLoop::run(){
                 _server->onClientConnected(sock);
             }
         }
-        
+        std::list<int> badClientSD;
         for (std::list<int>::iterator it = _clientsSD.begin(); it != _clientsSD.end(); ++it)
         {
             if (FD_ISSET(*it, &readset))
@@ -97,12 +88,7 @@ void SelectLoop::run(){
                     //the connection is broken, remove the socket from the list
                     Logger::Error("Connection is broken\n");
                     badClientSD.push_back(*it);
-                    close(*it);
                     //removeClientSocket(*it);
-                    if(_server)
-                    {
-                        _server->onClientDisconnected(*it);
-                    }
                 }
                 else
                 {
@@ -146,8 +132,13 @@ void SelectLoop::run(){
                 }
             }
         }
-        
-        
-        
+        for (std::list<int>::iterator it = badClientSD.begin(); it != badClientSD.end(); ++it)
+        {
+            if(_server)
+            {
+                _server->onClientDisconnected(*it);
+            }
+        }
+
     }
 }

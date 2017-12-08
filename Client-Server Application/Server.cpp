@@ -18,6 +18,7 @@ void Server::addClient(int fd){
 }
 
 void Server::deleteClient(int fd){
+    Logger::Error("Client deleted\n");
     _clients.remove(fd);
 }
 
@@ -57,7 +58,9 @@ void Server::onClientConnected(int sock){
 
 void Server::onClientDisconnected(int sock){
     Logger::Error("Client disconnected from server\n");
-    //
+    close(sock);
+    deleteClient(sock);
+    _loop->removeClientSocket(sock);
     //remove
     // loop.remove
     //close(sock)

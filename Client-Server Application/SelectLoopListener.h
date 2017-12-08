@@ -13,9 +13,9 @@
 
 class SelectLoopListener() {
 public:
-    virtual void OnClientConnected() = 0;
-    virtual void OnClientDisconnected() = 0;
-    virtual void OnMessageReceived(std::string str) = 0;
+    virtual void onClientConnected(int sock) = 0;
+    virtual void onClientDisconnected(int sock) = 0;
+    virtual void onMessageReceived(int sockFrom, char msg[1024]) = 0;
 }
 
 

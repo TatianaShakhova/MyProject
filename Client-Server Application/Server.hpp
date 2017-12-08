@@ -19,10 +19,12 @@
 #include <iostream>
 #include "Logger.hpp"
 #include "SelectLoop.hpp"
+#include "SelectLoopListener.h"
 
 class SelectLoop;
+class SelectLoopListener;
 
-class Server {
+class Server : SelectLoopListener{
 public:
     Server();
     void run();
