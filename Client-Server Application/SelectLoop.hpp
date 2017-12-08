@@ -11,17 +11,25 @@
 
 #include <stdio.h>
 #include <string>
+#include <iostream>
 #include "Server.hpp"
+
+class Server;
 
 class SelectLoop {
 public:
     SelectLoop() = default;
     void run();
-    void setListenerSD(int listeningSocket);
-    //void addClients();
+    void setListenerSD(int listeningSocket);   
+    void setListener(Server* listener);
+    
+    void addClientSocket(int sock); //_clientsSD.add
+    void removeClientSocket(int sock); //_clientsSD.remove
+
 private:
     int _listener = -1;
-    std::list<int> _clients;
+    Server* _server = nullptr;
+    std::list<int> _clientsSD;
 };
 
 #endif /* SelectLoop_hpp */

@@ -9,5 +9,14 @@
 #ifndef SelectLoopListener_h
 #define SelectLoopListener_h
 
+#include <string>
+
+class SelectLoopListener() {
+public:
+    virtual void OnClientConnected() = 0;
+    virtual void OnClientDisconnected() = 0;
+    virtual void OnMessageReceived(std::string str) = 0;
+}
+
 
 #endif /* SelectLoopListener_h */

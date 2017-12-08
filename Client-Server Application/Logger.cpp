@@ -25,17 +25,16 @@ void Logger::Info(string msg) {
 void Logger::print(string tag, string msg) {
     
     cout << tag << ": " << msg;
-    char fileName[15] = "LogFile.txt";
+    char fileName[100] = "/Users/merateam/Documents/MyProject-master/Client-Server Application/LogFile.txt";
     
     ofstream fout;
     fout.open(fileName);
     if (fout.is_open())
     {
-        fout << tag << ": " << msg;
+        fout << tag << ": " << msg << endl;
     }
     else
     {
         cout << "Error opening the log file\n";
     }
-    
 }

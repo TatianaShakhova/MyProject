@@ -28,14 +28,17 @@ public:
     void run();
     void createConnectionListener();
     void deleteConnectionListener();
-    
-    //void OnClientConnected();
-    //void OnClientDisconnected();
-    //void OnMessageReceived(std::string str);
+    void onClientConnected(int sock);
+    void onClientDisconnected(int sock);
+    void onMessageReceived(int sockFrom, char msg[1024]);
+    void addClient(int fd);
+    void deleteClient(int fd);
+    void sendMessage(int from, char msg[1024]);
     
 private:
     SelectLoop* _loop;
     int _connectionListenerSD;
+    std::list<int> _clients;
     
 };
 #endif /* Server_hpp */
