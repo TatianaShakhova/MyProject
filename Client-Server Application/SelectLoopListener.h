@@ -11,12 +11,12 @@
 
 #include <string>
 
-class SelectLoopListener() {
+class SelectLoopListener{
 public:
     virtual void onClientConnected(int sock) = 0;
     virtual void onClientDisconnected(int sock) = 0;
-    virtual void onMessageReceived(int sockFrom, char msg[1024]) = 0;
-}
+    virtual void onMessageReceived(int sockFrom, const std::string& msg) = 0;
+};
 
 
 #endif /* SelectLoopListener_h */

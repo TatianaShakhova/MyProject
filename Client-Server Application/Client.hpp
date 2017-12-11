@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <map>
 
 class Client{
 public:
@@ -18,6 +19,7 @@ public:
 private:
     int clientID;
     std::string name;
+    //std::map<>
 };
 
 #endif /* Client_hpp */

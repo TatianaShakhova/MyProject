@@ -28,10 +28,11 @@ void Logger::print(string tag, string msg) {
     char fileName[100] = "/Users/merateam/Documents/MyProject-master/Client-Server Application/LogFile.txt";
     
     ofstream fout;
-    fout.open(fileName);
+    fout.open(fileName, ios_base::app);
     if (fout.is_open())
     {
         fout << tag << ": " << msg << endl;
+        fout.close();
     }
     else
     {

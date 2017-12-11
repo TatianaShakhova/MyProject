@@ -16,7 +16,7 @@ void SelectLoop::removeClientSocket(int sock){
     _clientsSD.remove(sock);
 }
 
-void SelectLoop::setListener(Server* listener){
+void SelectLoop::setListener(SelectLoopListener* listener){
     _server = listener;
 }
 
@@ -96,13 +96,6 @@ void SelectLoop::run(){
                     //std::chrono::system_clock::time_point time = std::chrono::system_clock::now();
                     //time_t tt = std::chrono::system_clock::to_time_t(time);
                     //std::cout << ctime(&tt);
-                    time_t tt;
-                    time(&tt);
-                    char bufTime[80];
-                    struct tm *timeInfo;
-                    timeInfo = localtime(&tt);
-                    strftime(bufTime, 80, "%R", timeInfo);
-                    puts(bufTime);
                     if(_server)
                     {
                         _server->onMessageReceived(*it, buf);

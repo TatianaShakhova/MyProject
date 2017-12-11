@@ -8,8 +8,8 @@
 
 #include "Server.hpp"
 
-Server::Server(){
-    _loop = new SelectLoop();
+void Server::parseCommand(const std::string &msg){
+    
 }
 
 void Server::addClient(int fd){
@@ -22,19 +22,25 @@ void Server::deleteClient(int fd){
     _clients.remove(fd);
 }
 
-void Server::sendMessage(int from, char msg[1024]){
+void Server::sendMessage(int from, const std::string& msg)
+{
+    std::string msgForSend = msg;
+    
+    time_t tt;
+    time(&tt);
+    char bufTime[80];
+    struct tm *timeInfo;
+    timeInfo = localtime(&tt);
+    if (strftime(bufTime, 80, "%R", timeInfo))
+    {
+        msgForSend = std::string(bufTime) + " " + msgForSend;
+    }
+    
     for (std::list<int>::iterator iter = _clients.begin(); iter != _clients.end(); iter++)
     {
         if (*iter != from)
-        {
-            //size_t bufTimeLen = std::strlen(bufTime);
-            //size_t msgLen = bufTimeLen + 1 + bytes_read;
-            size_t msgLen = 1024;
-            char buffer[msgLen];
-            //memcpy(buffer, bufTime, bufTimeLen);
-            //buffer[bufTimeLen] = ' ';
-            //memcpy(buffer + bufTimeLen + 1, buf, bytes_read);
-            int bytes_write = send(*iter, buffer, msgLen, 0);
+        {            
+            int bytes_write = send(*iter, msgForSend.data(), msgForSend.length(), 0);
             if (bytes_write <= 0)
             {
                 Logger::Info("Didn't anable to send\n");
@@ -51,7 +57,7 @@ void Server::sendMessage(int from, char msg[1024]){
 void Server::onClientConnected(int sock){
     Logger::Error("Client connected to server\n");
     addClient(sock);
-    _loop->addClientSocket(sock);
+    _loop.addClientSocket(sock);
     // add
     //loop.add
 }
@@ -60,13 +66,13 @@ void Server::onClientDisconnected(int sock){
     Logger::Error("Client disconnected from server\n");
     close(sock);
     deleteClient(sock);
-    _loop->removeClientSocket(sock);
+    _loop.removeClientSocket(sock);
     //remove
     // loop.remove
     //close(sock)
 }
 
-void Server::onMessageReceived(int sockFrom, char msg[1024]){
+void Server::onMessageReceived(int sockFrom, const std::string& msg){
     Logger::Error("New message\n");
     sendMessage(sockFrom, msg);
     
@@ -102,11 +108,11 @@ void Server::createConnectionListener(){
         return;
     }
     listen(_connectionListenerSD, 3);     //check return value
-    _loop->setListenerSD(_connectionListenerSD);
+    _loop.setListenerSD(_connectionListenerSD);
 }
 
 void Server::deleteConnectionListener() {
-    _loop->setListenerSD(-1);             // !!! check it
+    _loop.setListenerSD(-1);             // !!! check it
     close(_connectionListenerSD);
     _connectionListenerSD = -1;
 }
@@ -114,10 +120,10 @@ void Server::deleteConnectionListener() {
 void Server::run(){
     Logger::Info("Starting...\n");
     createConnectionListener();
-    _loop->setListener(this);
+    _loop.setListener(this);
     
-    _loop->run();
+    _loop.run();
     
-    _loop->setListener(nullptr);
+    _loop.setListener(nullptr);
     deleteConnectionListener();
 }
