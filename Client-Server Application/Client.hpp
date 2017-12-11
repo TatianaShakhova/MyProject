@@ -15,11 +15,14 @@
 
 class Client{
 public:
-    
+    Client(int fd);
+    bool send(std::string str);
+    void setName(std::string name);
+    std::string getName();
+    int getFD();
 private:
-    int clientID;
-    std::string name;
-    //std::map<>
+    int _clientFD = -1;
+    std::string _name = "";
 };
 
 #endif /* Client_hpp */

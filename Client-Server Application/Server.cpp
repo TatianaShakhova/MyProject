@@ -5,27 +5,46 @@
 //  Created by merateam on 06/12/2017.
 //  Copyright © 2017 merateam. All rights reserved.
 //
-
 #include "Server.hpp"
+#include <regex>
 
-void Server::parseCommand(const std::string &msg){
-    
+bool Server::parseCommand(Client* client, const std::string &msg){
+    // if msg begins from @setname {
+    std::regex setNameCommand("^@([a-z]+)[ ]+(.*)");
+    std::smatch matches;
+    if(std::regex_search(msg, matches, setNameCommand))
+    {
+        Logger::Info("It is command\n");
+        for (size_t i = 0; i < matches.size(); ++i)
+        {
+            std::cout << i << matches[i] << std::endl;
+        }
+    }
+    else{
+        Logger::Error("Try again");//c>set name
+    // }
+    }
+    return false;
 }
 
-void Server::addClient(int fd){
-    Logger::Error("Client added\n");
-    _clients.push_back(fd);
+void Server::sendMessage(Client* client, const std::string& msg) {
+    if(client)
+    {
+        if(client->send(msg)) {
+            // success
+        }
+        else {
+            // error
+            onClientDisconnected(client->getFD());
+        }
+    }
+    else{
+        // error
+    }
 }
-
-void Server::deleteClient(int fd){
-    Logger::Error("Client deleted\n");
-    _clients.remove(fd);
-}
-
-void Server::sendMessage(int from, const std::string& msg)
-{
-    std::string msgForSend = msg;
-    
+//{
+    /*std::string msgForSend = msg;
+    std::string clientName = std::to_string(from);
     time_t tt;
     time(&tt);
     char bufTime[80];
@@ -33,14 +52,17 @@ void Server::sendMessage(int from, const std::string& msg)
     timeInfo = localtime(&tt);
     if (strftime(bufTime, 80, "%R", timeInfo))
     {
-        msgForSend = std::string(bufTime) + " " + msgForSend;
-    }
-    
+        msgForSend = clientName + " " + std::string(bufTime) + " " + msgForSend;
+    }*/
+    /*Message message(from, msg);
+    std::string msgForSend = message.getMessage();
+    //printf("Message size %d\n", msgForSend.length());
     for (std::list<int>::iterator iter = _clients.begin(); iter != _clients.end(); iter++)
     {
         if (*iter != from)
         {            
             int bytes_write = send(*iter, msgForSend.data(), msgForSend.length(), 0);
+            printf("Bytes sent: %d", bytes_write);
             if (bytes_write <= 0)
             {
                 Logger::Info("Didn't anable to send\n");
@@ -52,31 +74,68 @@ void Server::sendMessage(int from, const std::string& msg)
             }
         }
     }
-}
+}*/
 
 void Server::onClientConnected(int sock){
     Logger::Error("Client connected to server\n");
-    addClient(sock);
+    
+    Client* client = new Client(sock);
+    _clientsMap[sock] = client;
     _loop.addClientSocket(sock);
-    // add
-    //loop.add
+    
+    client->send("Please, send your nameby command '@setname <name>'");
 }
 
 void Server::onClientDisconnected(int sock){
     Logger::Error("Client disconnected from server\n");
     close(sock);
-    deleteClient(sock);
     _loop.removeClientSocket(sock);
-    //remove
-    // loop.remove
-    //close(sock)
+    delete _clientsMap[sock];
+    _clientsMap.erase(sock);
 }
 
 void Server::onMessageReceived(int sockFrom, const std::string& msg){
-    Logger::Error("New message\n");
-    sendMessage(sockFrom, msg);
-    
-    // for all clients send()
+    Logger::Info("New message\n");
+    if (_clientsMap.find(sockFrom) != _clientsMap.end())  // in the map
+    {
+        if(!parseCommand(_clientsMap[sockFrom], msg)){
+            if(_clientsMap[sockFrom]) // check for null
+            {
+                if (_clientsMap[sockFrom]->getName().empty()) // name == empty
+                {
+                    sendMessage(_clientsMap[sockFrom], "Please, send your name by command '@setname <name>'");
+                }
+                else
+                {
+                    for (auto iterator = _clientsMap.begin(); iterator != _clientsMap.end(); iterator++)
+                    {
+                        if((*iterator).first != sockFrom)
+                        {
+                            // msg
+                            time_t tt;
+                            time(&tt);
+                            char bufTime[80];
+                            struct tm *timeInfo;
+                            timeInfo = localtime(&tt);
+                            strftime(bufTime, 80, "%R", timeInfo);
+                            std::string msgForSend = std::string(bufTime) + " "
+                                                + _clientsMap[sockFrom]->getName() + ": " + msg;
+                            (*iterator).second->send(msg);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Logger::Error("No socket found");
+                return;
+            }
+        }
+    }
+    else
+    {
+        onClientConnected(sockFrom);
+    }
 }
 
 void Server::createConnectionListener(){

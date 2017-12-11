@@ -12,7 +12,6 @@
 		C8011D841FD80C940020AD0E /* Server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D821FD80C940020AD0E /* Server.cpp */; };
 		C8011D8A1FD947BA0020AD0E /* SelectLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D881FD947BA0020AD0E /* SelectLoop.cpp */; };
 		C8011D8F1FDAACAA0020AD0E /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D8D1FDAACAA0020AD0E /* Client.cpp */; };
-		C8011D921FDAADE00020AD0E /* Message.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D901FDAADE00020AD0E /* Message.cpp */; };
 		C82E561F1FD6A39C004B59B9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C82E561E1FD6A39C004B59B9 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -39,8 +38,6 @@
 		C8011D8C1FD966EF0020AD0E /* SelectLoopListener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelectLoopListener.h; sourceTree = "<group>"; };
 		C8011D8D1FDAACAA0020AD0E /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
 		C8011D8E1FDAACAA0020AD0E /* Client.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Client.hpp; sourceTree = "<group>"; };
-		C8011D901FDAADE00020AD0E /* Message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Message.cpp; sourceTree = "<group>"; };
-		C8011D911FDAADE00020AD0E /* Message.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Message.hpp; sourceTree = "<group>"; };
 		C82E561B1FD6A39C004B59B9 /* Client-Server Application */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Client-Server Application"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C82E561E1FD6A39C004B59B9 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -86,8 +83,6 @@
 				C8011D8C1FD966EF0020AD0E /* SelectLoopListener.h */,
 				C8011D8D1FDAACAA0020AD0E /* Client.cpp */,
 				C8011D8E1FDAACAA0020AD0E /* Client.hpp */,
-				C8011D901FDAADE00020AD0E /* Message.cpp */,
-				C8011D911FDAADE00020AD0E /* Message.hpp */,
 			);
 			path = "Client-Server Application";
 			sourceTree = "<group>";
@@ -151,7 +146,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C8011D7E1FD6B89B0020AD0E /* network.cpp in Sources */,
-				C8011D921FDAADE00020AD0E /* Message.cpp in Sources */,
 				C8011D811FD6BA940020AD0E /* Logger.cpp in Sources */,
 				C8011D8F1FDAACAA0020AD0E /* Client.cpp in Sources */,
 				C8011D841FD80C940020AD0E /* Server.cpp in Sources */,

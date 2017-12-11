@@ -88,40 +88,14 @@ void SelectLoop::run(){
                     //the connection is broken, remove the socket from the list
                     Logger::Error("Connection is broken\n");
                     badClientSD.push_back(*it);
-                    //removeClientSocket(*it);
                 }
                 else
                 {
                     Logger::Info("Reciving message\n");
-                    //std::chrono::system_clock::time_point time = std::chrono::system_clock::now();
-                    //time_t tt = std::chrono::system_clock::to_time_t(time);
-                    //std::cout << ctime(&tt);
                     if(_server)
                     {
                         _server->onMessageReceived(*it, buf);
                     }
-                    /*for (std::list<int>::iterator iter = _clientsSD.begin(); iter != _clientsSD.end(); iter++)
-                    {
-                        if (*iter != *it)
-                        {
-                            size_t bufTimeLen = std::strlen(bufTime);
-                            size_t msgLen = bufTimeLen + 1 + bytes_read;
-                            char buffer[msgLen];
-                            memcpy(buffer, bufTime, bufTimeLen);
-                            buffer[bufTimeLen] = ' ';
-                            memcpy(buffer + bufTimeLen + 1, buf, bytes_read);
-                            int bytes_write = send(*iter, buffer, msgLen, 0);
-                            if (bytes_write <= 0)
-                            {
-                                Logger::Info("Didn't anable to send\n");
-                                continue;
-                            }
-                            else
-                            {
-                                Logger::Info("Sending message\n");
-                            }
-                        }
-                    }*/
                 }
             }
         }

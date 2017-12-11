@@ -11,6 +11,9 @@
 
 #include "SelectLoop.hpp"
 #include "SelectLoopListener.h"
+#include "Client.hpp"
+#include <map>
+#include <iostream>
 
 class Server : public SelectLoopListener{
 public:
@@ -20,15 +23,17 @@ public:
     void onClientConnected(int sock) override;
     void onClientDisconnected(int sock) override;
     void onMessageReceived(int sockFrom, const std::string& msg) override;
-    void addClient(int fd);
-    void deleteClient(int fd);
-    void sendMessage(int from, const std::string& msg);
-    void parseCommand(const std::string& msg);
+    //void addClient(int fd);
+    //void deleteClient(int fd);
+    void sendMessage(Client* client, const std::string& msg);
+    bool parseCommand(Client* client, const std::string& msg);
     
 private:
     SelectLoop _loop;
     int _connectionListenerSD;
-    std::list<int> _clients;
+    //std::list<int> _clients;
+    
+    std::map<int, Client*> _clientsMap;
     
 };
 #endif /* Server_hpp */
