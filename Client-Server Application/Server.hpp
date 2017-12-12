@@ -9,11 +9,12 @@
 #ifndef Server_hpp
 #define Server_hpp
 
+#include <map>
+#include <iostream>
 #include "SelectLoop.hpp"
 #include "SelectLoopListener.h"
 #include "Client.hpp"
-#include <map>
-#include <iostream>
+#include "Room.hpp"
 
 class Server : public SelectLoopListener{
 public:
@@ -23,17 +24,18 @@ public:
     void onClientConnected(int sock) override;
     void onClientDisconnected(int sock) override;
     void onMessageReceived(int sockFrom, const std::string& msg) override;
-    //void addClient(int fd);
-    //void deleteClient(int fd);
     void sendMessage(Client* client, const std::string& msg);
     bool parseCommand(Client* client, const std::string& msg);
+    void createRoom(std::string nameOfRoom);
+    void deleteRoom(std::string nameOfRoom);
+    void sendRoomsToClient(Client* client);
+    void joinRoom(std::string nameOfRoom, Client* client);
     
 private:
     SelectLoop _loop;
     int _connectionListenerSD;
-    //std::list<int> _clients;
-    
+    bool processSetNameComand(std::string name, Client* client);
     std::map<int, Client*> _clientsMap;
-    
+    std::map<std::string, Room*> _roomsMap;
 };
 #endif /* Server_hpp */

@@ -12,17 +12,22 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include <map>
+#include <iostream>
+#include "Room.hpp"
 
 class Client{
 public:
     Client(int fd);
     bool send(std::string str);
     void setName(std::string name);
+    void setRoom(Room* room);
     std::string getName();
     int getFD();
 private:
     int _clientFD = -1;
     std::string _name = "";
+    Room* _room = nullptr;
 };
 
 #endif /* Client_hpp */

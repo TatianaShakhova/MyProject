@@ -16,6 +16,10 @@ Client::Client(int fd){
     _clientFD = fd;
 }
 
+void Client::setRoom(Room* room){
+    _room = room;
+}
+
 bool Client::send(std::string str){
     int bytes_write = ::send(_clientFD, str.data(), str.length(), 0);
     
