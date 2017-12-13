@@ -28,7 +28,6 @@ public:
     void run();
     void setListenerSD(int listeningSocket);   
     void setListener(SelectLoopListener* listener);
-    
     void addClientSocket(int sock);    //_clientsSD.add
     void removeClientSocket(int sock); //_clientsSD.remove
 

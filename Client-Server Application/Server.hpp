@@ -27,14 +27,14 @@ public:
     void sendMessage(Client* client, const std::string& msg);
     bool parseCommand(Client* client, const std::string& msg);
     void createRoom(std::string nameOfRoom);
-    void deleteRoom(std::string nameOfRoom);
+    bool deleteRoom(std::string nameOfRoom);
     void sendRoomsToClient(Client* client);
-    void joinRoom(std::string nameOfRoom, Client* client);
-    
+    void printHistory(Client* client);
 private:
     SelectLoop _loop;
     int _connectionListenerSD;
     bool processSetNameComand(std::string name, Client* client);
+    void sendAllClientsToList(Client* client, std::string msg);
     std::map<int, Client*> _clientsMap;
     std::map<std::string, Room*> _roomsMap;
 };

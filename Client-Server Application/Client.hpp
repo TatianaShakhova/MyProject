@@ -24,6 +24,7 @@ public:
     void setRoom(Room* room);
     std::string getName();
     int getFD();
+    Room* getRoom();
 private:
     int _clientFD = -1;
     std::string _name = "";

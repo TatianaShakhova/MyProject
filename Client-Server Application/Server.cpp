@@ -8,6 +8,52 @@
 #include "Server.hpp"
 #include <regex>
 
+void Server::printHistory(Client* client){
+    const std::vector<std::string>& history = (client->getRoom())->getHistory();
+    if (history.size() != 0)
+    {
+        std::string messages = "Message history\n";
+        for (auto iterator = history.begin(); iterator != history.end(); iterator++)
+        {
+            messages += (*iterator) + "\n";
+        }
+        sendMessage(client, messages);
+    }
+    else
+    {
+        sendMessage(client, "Message history is clean");
+    }
+}
+
+void Server::sendAllClientsToList(Client* client, std::string msg){
+    const std::list<Client*>& clientListInRoom = client->getRoom()->getClientList();
+    if (clientListInRoom.size() > 1)
+    {
+        time_t tt;
+        time(&tt);
+        char bufTime[80];
+        struct tm *timeInfo;
+        timeInfo = localtime(&tt);
+        strftime(bufTime, 80, "%R", timeInfo);
+        std::string roomName = (client->getRoom())->getRoomName();
+        for (auto iterator = clientListInRoom.begin(); iterator != clientListInRoom.end(); iterator++)
+        {
+            if ((*iterator) != client)
+            {
+                std::string msgForSend = std::string(bufTime) + " "
+                    + roomName + " " + client->getName() + ": " + msg;
+                sendMessage((*iterator), msgForSend);
+                (client->getRoom())->addMsgToHistory(msgForSend);
+            }
+        }
+    }
+    else
+    {
+        sendMessage(client, "You are alone in this room");
+    }
+
+}
+
 bool Server::processSetNameComand(std::string name, Client* client){
     bool find = false;
     Logger::Info("It is command @setname\n");
@@ -52,39 +98,94 @@ bool Server::parseCommand(Client* client, const std::string &msg){
                 if (_roomsMap.find(matches[2]) != _roomsMap.end())
                 {
                     _roomsMap[matches[2]]->addToClientList(client);
+                    client->setRoom(nullptr);
                     client->setRoom(_roomsMap[matches[2]]);
-                    //
+                    std::string info = "You joind the room " + (_roomsMap[matches[2]]->getRoomName());
+                    sendMessage(client, info);
+                    return true;
+                }
+                else
+                {
+                    sendMessage(client, "No such room. Join or create new one\n");
+                    sendRoomsToClient(client);
                     return true;
                 }
             }
             if (matches[1] == "@setroom")
             {
-                bool find = false;
-                for (auto iterator = _roomsMap.begin(); iterator != _roomsMap.end(); iterator++)
+                if (_roomsMap.find(matches[2]) == _roomsMap.end())
                 {
-                    if ((*iterator).first == matches[2])
-                    {
-                        find = true;
-                        continue;
-                    }
-                }
-                if (find)
-                {
-                    sendMessage(client, "Group with such a name already exists\n");
-                    sendMessage(client, "Create a room by command '@setroom <room>'");
+                    createRoom(matches[2]);
+                    sendMessage(client, "You created a new room");
+                    //sendRoomsToClient(client);
+                    //for testing
+                    _roomsMap[matches[2]]->addToClientList(client);
+                    //client->setRoom(nullptr);
+                    client->setRoom(_roomsMap[matches[2]]);
+                    std::string info = "You joind the room " + (_roomsMap[matches[2]]->getRoomName());
+                    sendMessage(client, info);
                     return true;
                 }
                 else
                 {
-                    createRoom(matches[2]);
-                    sendMessage(client, "You created a new room");
+                    sendMessage(client, "Group with such a name already exists");
                     sendRoomsToClient(client);
                     return true;
                 }
             }
+            if (matches[1] == "@leaveroom")
+            {
+                (client->getRoom())->removeFromClientList(client);
+                client->setRoom(nullptr);
+                sendMessage(client, "You have leaved the room");
+                sendRoomsToClient(client);
+                return true;
+            }
+            if (matches[1] == "@delroom")
+            {
+                const std::string& roomName = matches[2];
+                if (_roomsMap.find(roomName) != _roomsMap.end())
+                {
+                    if (deleteRoom(roomName))
+                    {
+                        sendMessage(client, "Room " + roomName + " was deleted");
+                        return true;
+                    }
+                    
+                }
+                else
+                {
+                    sendMessage(client, "No such room");
+                    return true;
+                }
+            }
+            if (matches[1] == "@listroom")
+            {
+                sendRoomsToClient(client);
+                return true;
+            }
+            if (matches[1] == "@roommates")
+            {
+                if (_roomsMap.find(matches[2]) != _roomsMap.end())
+                {
+                    sendMessage(client, _roomsMap[matches[2]]->getRoomMates());
+                    return true;
+                }
+                else
+                {
+                    sendMessage(client, "Room not found");
+                    return true;
+                }
+            }
+            if (matches[1] == "@history")
+            {
+                sendMessage(client, "Show message history '@history room'");
+                printHistory(client);
+                return true;
+            }
             else
             {
-                Logger::Error("Try again\n");//c>set name
+                Logger::Error("Try again\n");//set name
             }
         }
     }
@@ -106,39 +207,32 @@ void Server::sendRoomsToClient(Client *client){
         roomsList += "-------\n";
         sendMessage(client, roomsList);
         sendMessage(client, "Join the room by command '@joinroom <room>'\n");
-        sendMessage(client, "Create a room by command '@setroom <room>'\n");
+        sendMessage(client, "Create a room by command '@setroom <room>'");
     }
     else
     {
         sendMessage(client, "Now there are no rooms. Create a room for chart.\n");
-        sendMessage(client, "Create a room by command '@setroom <room>'\n");
+        sendMessage(client, "Create a room by command '@setroom <room>'");
     }
 }
 
 void Server::createRoom(std::string nameOfRoom){
     Logger::Info("New room created\n");
-    Room* room = new Room();
+    Room* room = new Room(nameOfRoom);
     _roomsMap[nameOfRoom] = room;
 }
 
-void Server::deleteRoom(std::string nameOfRoom){
-    Logger::Info("Room deleted\n");
+bool Server::deleteRoom(std::string nameOfRoom){
+    bool bResult = false;
+    
     if (_roomsMap[nameOfRoom] && _roomsMap[nameOfRoom]->roomIsEmpty())
     {
         _roomsMap.erase(nameOfRoom);
+        Logger::Info("Room deleted\n");
+        bResult = true;
     }
-}
-
-void Server::joinRoom(std::string nameOfRoom, Client* client){
-    if(_roomsMap[nameOfRoom])
-    {
-        _roomsMap[nameOfRoom]->addToClientList(client);
-    }
-    else
-    {
-        Logger::Error("No such room. Join or create new one\n");
-        return;
-    }
+    
+    return bResult;
 }
 
 void Server::sendMessage(Client* client, const std::string& msg) {
@@ -167,7 +261,7 @@ void Server::onClientConnected(int sock){
     Client* client = new Client(sock);
     _clientsMap[sock] = client;
     _loop.addClientSocket(sock);
-    sendMessage(client, "Please, send your nameby command '@setname <name>'");
+    sendMessage(client, "Please, send your name by command '@setname <name>'");
 }
 
 void Server::onClientDisconnected(int sock){
@@ -192,21 +286,13 @@ void Server::onMessageReceived(int sockFrom, const std::string& msg){
                 }
                 else
                 {
-                    for (auto iterator = _clientsMap.begin(); iterator != _clientsMap.end(); iterator++)
+                    if (_clientsMap[sockFrom]->getRoom())
                     {
-                        if((*iterator).first != sockFrom && !(*iterator).second->getName().empty())
-                        {
-                            // msg
-                            time_t tt;
-                            time(&tt);
-                            char bufTime[80];
-                            struct tm *timeInfo;
-                            timeInfo = localtime(&tt);
-                            strftime(bufTime, 80, "%R", timeInfo);
-                            std::string msgForSend = std::string(bufTime) + " "
-                                                + _clientsMap[sockFrom]->getName() + ": " + msg;
-                            sendMessage((*iterator).second, msgForSend);
-                        }
+                        sendAllClientsToList(_clientsMap[sockFrom], msg);
+                    }
+                    else
+                    {
+                        sendRoomsToClient(_clientsMap[sockFrom]);
                     }
                 }
             }
