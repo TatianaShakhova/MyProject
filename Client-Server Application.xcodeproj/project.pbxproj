@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C8011D7E1FD6B89B0020AD0E /* network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D7D1FD6B89B0020AD0E /* network.cpp */; };
 		C8011D811FD6BA940020AD0E /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D7F1FD6BA940020AD0E /* Logger.cpp */; };
 		C8011D841FD80C940020AD0E /* Server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D821FD80C940020AD0E /* Server.cpp */; };
 		C8011D8A1FD947BA0020AD0E /* SelectLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8011D881FD947BA0020AD0E /* SelectLoop.cpp */; };
@@ -29,7 +28,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C8011D7D1FD6B89B0020AD0E /* network.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = network.cpp; sourceTree = "<group>"; };
 		C8011D7F1FD6BA940020AD0E /* Logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logger.cpp; sourceTree = "<group>"; };
 		C8011D801FD6BA940020AD0E /* Logger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Logger.hpp; sourceTree = "<group>"; };
 		C8011D821FD80C940020AD0E /* Server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Server.cpp; sourceTree = "<group>"; };
@@ -76,7 +74,6 @@
 			isa = PBXGroup;
 			children = (
 				C82E561E1FD6A39C004B59B9 /* main.cpp */,
-				C8011D7D1FD6B89B0020AD0E /* network.cpp */,
 				C8011D7F1FD6BA940020AD0E /* Logger.cpp */,
 				C8011D801FD6BA940020AD0E /* Logger.hpp */,
 				C8011D821FD80C940020AD0E /* Server.cpp */,
@@ -150,7 +147,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8011D7E1FD6B89B0020AD0E /* network.cpp in Sources */,
 				C8011D811FD6BA940020AD0E /* Logger.cpp in Sources */,
 				C8011D8F1FDAACAA0020AD0E /* Client.cpp in Sources */,
 				C8011D841FD80C940020AD0E /* Server.cpp in Sources */,

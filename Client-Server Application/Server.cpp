@@ -27,36 +27,35 @@ void Server::printHistory(Client* client){
 
 void Server::sendAllClientsToList(Client* client, std::string msg){
     const std::list<Client*>& clientListInRoom = client->getRoom()->getClientList();
-    if (clientListInRoom.size() > 1)
+    time_t tt;
+    time(&tt);
+    char bufTime[80];
+    struct tm *timeInfo;
+    timeInfo = localtime(&tt);
+    strftime(bufTime, 80, "%R", timeInfo);
+    std::string roomName = (client->getRoom())->getRoomName();
+    for (auto iterator = clientListInRoom.begin(); iterator != clientListInRoom.end(); iterator++)
     {
-        time_t tt;
-        time(&tt);
-        char bufTime[80];
-        struct tm *timeInfo;
-        timeInfo = localtime(&tt);
-        strftime(bufTime, 80, "%R", timeInfo);
-        std::string roomName = (client->getRoom())->getRoomName();
-        for (auto iterator = clientListInRoom.begin(); iterator != clientListInRoom.end(); iterator++)
+        if ((*iterator) != client)
         {
-            if ((*iterator) != client)
-            {
-                std::string msgForSend = std::string(bufTime) + " "
+            std::string msgForSend = std::string(bufTime) + " "
                     + roomName + " " + client->getName() + ": " + msg;
-                sendMessage((*iterator), msgForSend);
-                (client->getRoom())->addMsgToHistory(msgForSend);
-            }
+            sendMessage((*iterator), msgForSend);
+            (client->getRoom())->addMsgToHistory(msgForSend);
         }
     }
-    else
-    {
-        sendMessage(client, "You are alone in this room");
-    }
-
 }
 
 bool Server::processSetNameComand(std::string name, Client* client){
-    bool find = false;
     Logger::Info("It is command @setname\n");
+    if (client->getName() == "")
+    {
+        sendMessage(client, "You are authorized");
+        client->setName(name);
+        sendRoomsToClient(client);
+        return true;
+    }
+    bool find = false;
     for (auto iterator = _clientsMap.begin(); iterator != _clientsMap.end(); iterator++)
     {
         if ((*iterator).second->getName() == name)
@@ -72,10 +71,12 @@ bool Server::processSetNameComand(std::string name, Client* client){
         sendMessage(client, "Please, send your name by command '@setname <name>'");
         return true;
     }
-
-    client->setName(name);
-    sendMessage(client, "You are authorized");
-    sendRoomsToClient(client);
+    else
+    {
+        sendMessage(client, "You are changed your name");
+        client->setName(name);
+        return true;
+    }
     return true;
 }
 
@@ -90,6 +91,11 @@ bool Server::parseCommand(Client* client, const std::string &msg){
             std::cout << i << matches[i] << std::endl;
             if (matches[1] == "@setname")
             {
+                if (client->getRoom() && ((client->getRoom())->getRoomMates()).size() > 1)
+                {
+                    sendAllClientsToList(client, "Client " + client->getName()
+                                         + " changed his name to " + std::string(matches[2]));
+                }
                 return processSetNameComand(matches[2], client);
             }
             if (matches[1] == "@joinroom")
@@ -102,6 +108,7 @@ bool Server::parseCommand(Client* client, const std::string &msg){
                     client->setRoom(_roomsMap[matches[2]]);
                     std::string info = "You joind the room " + (_roomsMap[matches[2]]->getRoomName());
                     sendMessage(client, info);
+                    sendAllClientsToList(client, "Client " + client->getName() + " joined the room");
                     return true;
                 }
                 else
@@ -139,11 +146,17 @@ bool Server::parseCommand(Client* client, const std::string &msg){
                 client->setRoom(nullptr);
                 sendMessage(client, "You have leaved the room");
                 sendRoomsToClient(client);
+                sendAllClientsToList(client, "Client " + client->getName() + " leaved the room");
                 return true;
             }
             if (matches[1] == "@delroom")
             {
                 const std::string& roomName = matches[2];
+                if ((client->getRoom())->getRoomName() == roomName)
+                {
+                    sendMessage(client, "Room " + roomName + " can not be deleted");
+                    return true;
+                }
                 if (_roomsMap.find(roomName) != _roomsMap.end())
                 {
                     if (deleteRoom(roomName))
@@ -151,7 +164,6 @@ bool Server::parseCommand(Client* client, const std::string &msg){
                         sendMessage(client, "Room " + roomName + " was deleted");
                         return true;
                     }
-                    
                 }
                 else
                 {

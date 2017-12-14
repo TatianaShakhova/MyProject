@@ -106,6 +106,5 @@ void SelectLoop::run(){
                 _server->onClientDisconnected(*it);
             }
         }
-
     }
 }
