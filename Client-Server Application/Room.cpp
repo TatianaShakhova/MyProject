@@ -36,8 +36,7 @@ void Room::removeFromClientList(Client* client){
         if (*iterator == client)
         {
             _clientsInRoom.erase(iterator);
-            Logger::Info("Client removed from list\n");
-            
+            Logger::Info("Client removed from list\n");  
         }
     }
 }

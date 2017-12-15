@@ -278,6 +278,11 @@ void Server::onClientConnected(int sock){
 
 void Server::onClientDisconnected(int sock){
     Logger::Error("Client disconnected from server\n");
+    if (_clientsMap[sock]->getRoom())
+    {
+        (_clientsMap[sock]->getRoom())->removeFromClientList(_clientsMap[sock]);
+        sendAllClientsToList(_clientsMap[sock], "Client " + (_clientsMap[sock])->getName() + " disconnected from the server");
+    }
     close(sock);
     _loop.removeClientSocket(sock);
     delete _clientsMap[sock];
